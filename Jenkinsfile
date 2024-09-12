@@ -9,7 +9,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build('my-terraform-image')
+                    def customImage = docker.build('my-terraform-image')
                 }
             }
         }
@@ -17,13 +17,16 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                        docker.image('my-terraform-image').push('latest')
+                        def imageName = 'mansinair/my-terraform-image'
+                        docker.image('my-terraform-image').tag("${imageName}:latest")
+                        docker.image("${imageName}:latest").push('latest')
                     }
                 }
             }
         }
     }
 }
+
 
 pipeline {
     agent {
