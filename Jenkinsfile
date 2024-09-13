@@ -1,72 +1,54 @@
 pipeline {
-    agent any
-    stages {
-        stage('Checkout Code') {
-            steps {
-                checkout scm
-            }
-        }
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    // Build the Docker image
-                    docker.build('my-terraform-image')
-                    
-                    // List Docker images for debugging
-                    sh 'docker images'
-                }
-            }
-        }
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('https://registry-1.docker.io/', 'docker-hub-credentials') {
-                        def imageName = 'mansinair/my-terraform-image'
-                        
-                        // Tag the built image
-                        docker.image('my-terraform-image').tag("${imageName}:latest")
-                        
-                        // Push the tagged image to Docker Hub
-                        docker.image("${imageName}:latest").push('latest')
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-pipeline {
     agent {
         docker {
-            image 'my-terraform-image' // Use the Docker image created
-            label 'docker' // Optional if using Docker-based Jenkins agents
+            image 'hashicorp/terraform' // Use the desired Terraform Docker image
+            args  '--entrypoint=""'          // Override the default entrypoint if necessary
         }
     }
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID_MN')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY_MN')
+        GITHUB_TOKEN = credentials('MNGIT')
+        AWS_DEFAULT_REGION    = 'us-east-1'
+    }
+
+
     stages {
+
+
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                script {
+                    // Run terraform init
+                    sh 'terraform init'
+                }
             }
         }
+
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan'
+                script {
+                    // Run terraform plan
+                    sh 'terraform plan'
+                }
             }
         }
-        stage('Terraform Apply') {
-            steps {
-                sh 'terraform apply -auto-approve'
-            }
-        }
+
+        
     }
+
     post {
-        success {
-            echo 'Terraform apply was successful!'
+        always {
+            // Archive Terraform plan files or other artifacts if needed
+            archiveArtifacts artifacts: 'terraform.plan', allowEmptyArchive: true
         }
+
+        success {
+            echo 'Terraform scripts executed successfully!'
+        }
+
         failure {
-            echo 'Terraform apply failed.'
+            echo 'Terraform scripts failed!'
         }
     }
 }
-
