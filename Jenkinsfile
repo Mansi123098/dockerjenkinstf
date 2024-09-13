@@ -11,6 +11,7 @@ pipeline {
                 script {
                     // Build the Docker image
                     def customImage = docker.build('my-terraform-image')
+                     sh 'docker images'
                 }
             }
         }
