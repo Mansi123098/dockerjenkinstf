@@ -5,12 +5,7 @@ pipeline {
             args  '--entrypoint=""'          // Override the default entrypoint if necessary
         }
     }
-    environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID_MN')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY_MN')
-        GITHUB_TOKEN = credentials('MNGIT')
-        AWS_DEFAULT_REGION    = 'us-east-1'
-    }
+    
 
 
     stages {
@@ -25,14 +20,7 @@ pipeline {
             }
         }
 
-        stage('Terraform Plan') {
-            steps {
-                script {
-                    // Run terraform plan
-                    sh 'terraform plan'
-                }
-            }
-        }
+        
 
         
     }
