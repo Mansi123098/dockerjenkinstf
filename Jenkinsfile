@@ -21,7 +21,20 @@ pipeline {
               }
         }
 
-        
+        stage('Run Terraform') {
+            agent {
+                docker {
+                    image 'terraform-image:latest'
+                    args '--entrypoint=""'
+                }
+            }
+            steps {
+                script {
+                    sh 'terraform init'
+                    echo 'completed'
+                }
+            }
+        }
     }
 
     post {
