@@ -10,16 +10,17 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    def customImage = docker.build('my-terraform-image')
-                     sh 'docker images'
+                    docker.build('my-terraform-image')
+                    
+                    // List Docker images for debugging
+                    sh 'docker images'
                 }
             }
         }
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                        // Define the full image name
+                    docker.withRegistry('https://registry-1.docker.io/', 'docker-hub-credentials') {
                         def imageName = 'mansinair/my-terraform-image'
                         
                         // Tag the built image
@@ -33,6 +34,7 @@ pipeline {
         }
     }
 }
+
 
 pipeline {
     agent {
