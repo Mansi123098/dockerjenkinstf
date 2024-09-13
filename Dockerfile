@@ -1,11 +1,14 @@
 # Use the official Terraform image from HashiCorp
 FROM hashicorp/terraform:latest
 
-# Set the working directory inside the container
+# Set the working directory in the container
 WORKDIR /workspace
 
 # Copy your Terraform configuration files into the container
-COPY . /workspace
+COPY main.tf .
 
-# Default command to run when the container starts
-ENTRYPOINT ["/bin/sh"]
+# Initialize Terraform and apply the configuration
+ENTRYPOINT ["terraform"]
+
+# Default command to run Terraform commands (e.g., `terraform init`)
+CMD ["init"]
